@@ -1,0 +1,68 @@
+import React, { ReactElement, useReducer } from "react";
+import { ADD_TODO, DELETE_TODO, reducer, UPDATE_DONE } from "./todoReducer";
+
+
+export interface Todo{
+    id: number,
+    title: string,
+    description: string,
+    done: boolean,
+}
+export type TodoContextType={
+  todos:Todo[]
+}
+export interface Actions{
+  type:string,
+  payload:Todo|number
+}
+
+const initialState:TodoContextType =  {
+  todos:[
+    {
+      id: 1,
+      title: "Learn javascript",
+      description: "lorem ipsum",
+      done: true,
+    },
+    {
+      id: 2,
+      title: "Learn typescript",
+      description: "lorem ipsum",
+      done: false,
+    },
+  ]
+};
+interface Props {
+  children: ReactElement;
+}
+export const TodoContext = React.createContext(null);
+
+export function TodoProvider({ children }:Props) {
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+  function handleAddTodo(todoData:Todo) {
+    const newTodo = { id: state.todos.length + 1, ...todoData };
+    dispatch({ type: ADD_TODO, payload: newTodo });
+  }
+
+  function handleDeleteTodo(id:number) {
+    dispatch({ type: DELETE_TODO, payload:id});
+  }
+
+  function handleUpdateDone(id:number) {
+    dispatch({ type: UPDATE_DONE, payload: id });
+  }
+
+  return (
+    <TodoContext.Provider
+      value={{
+        handleAddTodo,
+        handleDeleteTodo,
+        handleUpdateDone,
+        state,
+      }}
+    >
+      {children}
+    </TodoContext.Provider>
+  );
+}
